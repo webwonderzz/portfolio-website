@@ -1,5 +1,6 @@
 import { Check, Mail, Send, User } from 'lucide-react';
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -12,15 +13,39 @@ const Contact = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
-          ...prev,
-          [name]: value
+            ...prev,
+            [name]: value
         }));
-      };
+    };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+
+    const onSubmit = async (event) => {
+        event.preventDefault();
         setSubmitted(true);
-    }
+        const formData = new FormData(event.target);
+
+        formData.append("access_key", "32d754d2-d0a1-476d-a1f6-00a805156eae");
+
+        const object = Object.fromEntries(formData);
+        const json = JSON.stringify(object);
+
+        const res = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: json
+        }).then((res) => res.json());
+
+        if (res.success) {
+            Swal.fire({
+                title: "Success",
+                text: "Message sent successfully",
+                icon: "success"
+            });
+        }
+    };
 
     return (
         <section id="contact" className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-32 px-4 sm:px-6 lg:px-8">
@@ -32,7 +57,7 @@ const Contact = () => {
                             <h2 className='text-4xl md:text-5xl font-bold text-white mb-8 text-center'>
                                 Let's <span className='text-purple-400'>Connect</span>
                             </h2>
-                            <form onSubmit={handleSubmit} className='space-y-6'>
+                            <form onSubmit={onSubmit} className='space-y-6'>
                                 <div className='relative'>
                                     <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                                         <User className='text-purple-400' />
